@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import './App.css';
+import classes from './App.css';
 import Person from './Person/Person';
+import ErrorBoundary from './ErrorBoundary/ErrorBoundary';
 
 class App extends Component {
   state = {
@@ -49,14 +50,6 @@ class App extends Component {
   }
   render() {
     
-    const style = {
-      backgroundColor: 'green',
-      color:'white',
-      font: 'inherit',
-      border: '1px solid blue',
-      padding: '8px',
-      cursor: 'pointer'
-    }
 
     let persons = null;
 
@@ -64,37 +57,41 @@ class App extends Component {
       
       
     // }
+    let btnClass = '';
     if (this.state.showPersons) {
       persons = ( <div>
         {
           this.state.persons.map((person,index) => {
             return (
-              <Person
-                name={person.name} 
-                age={person.age} 
-                click= {this.deletePersonHandler.bind(this,index)}
-                nameChanged= {(event) => this.nameChangedHandler(event, person.id)}
-                key={person.id}/>
+              <ErrorBoundary key={person.id}>
+                <Person
+                  name={person.name} 
+                  age={person.age} 
+                  click= {this.deletePersonHandler.bind(this,index)}
+                  nameChanged= {(event) => this.nameChangedHandler(event, person.id)}
+                  />
+                </ErrorBoundary>
             )
           })
         }
           </div> )
-        style.backgroundColor = 'red';
+          btnClass = classes.Red
     }
-    let classes = [] 
+    const assignedClasses = [] 
     if (this.state.persons.length <= 2) {
-      classes.push('red');
+      assignedClasses.push(classes.red);
     } 
     if(this.state.persons.length <=1 ) {
-      classes.push('bold');
-    }
+      assignedClasses.push(classes.bold);
+    } 
+    
     
     return (
-      <div className="App">
+      <div className={classes.App}>
         <h1> Hi, I am a react app</h1>
-        <p className={classes.join(' ')}> Hi, I am a react app</p>
+        <p className={assignedClasses.join(' ')}> Hi, I am a react app</p>
         <button 
-        style={style}
+        className={btnClass}
         onClick={this.togglePersonsHandler} >Toggle Persons</button>
         {persons}
       </div>
