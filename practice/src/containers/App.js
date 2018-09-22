@@ -2,7 +2,10 @@ import React, {PureComponent} from 'react';
 import classes from './App.css';
 import Cockpit from '../components/Cockpit/Cockpit'
 import Persons from "../components/Persons/Persons";
+import Auxiliary from "../hoc/Auxiliary";
+import withClass from "../hoc/withClass";
 
+export const AuthContext = React.createContext(false);
 class App extends PureComponent {
     constructor(props) {
         super(props);
@@ -12,18 +15,20 @@ class App extends PureComponent {
                 {
                     id: 'b3h5b4j1',
                     name: "Ashish",
-                    age: "23"
+                    age: 23
                 }, {
                     id: 'b3h5b4j2',
                     name: "Mubashir",
-                    age: "22"
+                    age: 22
                 }, {
                     id: 'b3h5b4j3',
                     name: "Rahim",
-                    age: "23"
+                    age: 23
                 }
             ],
-            showPersons: false
+            showPersons: false,
+            toggleClicked: 0,
+            authenticated: false
         }
     }
     componentWillMount() {
@@ -72,14 +77,21 @@ class App extends PureComponent {
         this.setState({persons: persons})
     }
     togglePersonsHandler = () => {
-        this.setState({
-            showPersons: !this.state.showPersons
+        const doesShow = this.state.showPersons;
+        this.setState((prevState, props) => {
+            return {
+                showPersons: !doesShow,
+                toggleClicked: prevState.toggleClicked + 1
+            }
         })
     }
     deletePersonHandler = (personIndex) => {
         const persons = [...this.state.persons]
         persons.splice(personIndex, 1);
         this.setState({persons: persons})
+    }
+    loginHandler = () => {
+        this.setState({ authenticated: true })
     }
     render() {
         console.log('[App.js] inside render();');
@@ -90,17 +102,22 @@ class App extends PureComponent {
                 clicked={this.deletePersonHandler}
                 changed={this.nameChangedHandler}/>;
         }
-        return (
-            <div className={classes.App}>
-            <button onClick={() => {this.setState({showPersons:true})}}>Show Persons</button>
-                <Cockpit
-                    appTitle={this.props.title}
-                    persons={this.state.persons}
-                    showPersons={this.state.showPersons}
-                    click={this.togglePersonsHandler}/> {persons}
-            </div>
+        return ( 
+            <Auxiliary>
+                
+              <button onClick={() => {this.setState({showPersons:true})}}>Show Persons</button>
+                  <Cockpit
+                      appTitle={this.props.title}
+                      persons={this.state.persons}
+                      showPersons={this.state.showPersons}
+                      click={this.togglePersonsHandler}
+                      login={this.loginHandler}/> 
+                      <AuthContext.Provider value={this.state.authenticated}>
+                        {persons}
+                      </AuthContext.Provider>
+            </Auxiliary>
         );
     }
 }
 
-export default App;
+export default withClass(App, classes.App);
